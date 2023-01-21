@@ -1,0 +1,20 @@
+# Curl tests
+
+# GET
+curl -X GET http://localhost:3000/clientes  -H 'Content-Type: application/json'
+
+# GET :id
+curl -X GET http://localhost:3000/clientes/3  -H 'Content-Type: application/json'
+
+# POST
+curl -X POST http://localhost:3000/clientes  -H 'Content-Type: application/json'  -d '{"nombre":"Juan","apellido":"Perez","email":"jperez@mail.com"}'
+
+# PUT
+curl -X PUT http://localhost:3000/clientes/3  -H 'Content-Type: application/json'  -d '{"nombre":"Luis","apellido":"Tangalangoose","email":"a@mail.com"}'
+curl -X GET http://localhost:3000/clientes/3  -H 'Content-Type: application/json'
+
+# DELETE
+curl -X DELETE http://localhost:3000/clientes/3  -H 'Content-Type: application/json'
+curl -X GET http://localhost:3000/clientes  -H 'Content-Type: application/json'
+
+
