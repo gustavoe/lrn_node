@@ -39,7 +39,7 @@ const express = require("express");
 const app = express();
 
 app.listen(3000, () => {
-	console.log("Aplicación corriendo en http://localhost:3000");
+    console.log("Aplicación corriendo en http://localhost:3000");
 });
 ```
 
@@ -61,8 +61,8 @@ database.js
 const { Sequelize } = require("sequelize");
 
 const sequelize = new Sequelize("test-db", "user", "pass", {
-	dialect: "sqlite",
-	host: "./db.sqlite",
+    dialect: "sqlite",
+    host: "./db.sqlite",
 });
 
 module.exports = sequelize;
@@ -76,8 +76,8 @@ database.js
 const { Sequelize } = require("sequelize");
 
 const sequelize = new Sequelize("test-db", "user", "pass", {
-	dialect: "sqlite",
-	host: ":memory:",
+    dialect: "sqlite",
+    host: ":memory:",
 });
 
 module.exports = sequelize;
@@ -98,13 +98,18 @@ sequelize.sync().then(() => console.log("Base de Datos: Lista"));
 const app = express();
 
 app.listen(3000, () => {
-	console.log("Aplicación corriendo en http://localhost:3000");
+    console.log("Aplicación corriendo en http://localhost:3000");
 });
 ```
 
 En este punto, si todo anduvo bien, tendremos creado el archivo de la base de datos `db.sqlite` en la carpeta raíz de la aplicación.
 
 ## Crear el modelo: Cliente
+
+Los modelos se pueden definir de dos maneras en Sequelize:
+
+-   Llamando `sequelize.define(modelName, attributes, options)`
+-   Extendiendo `Model` y llamando `init(attributes, options)`
 
 Vamos a realizar este ejemplo sencillo utilizando la entidad `Cliente` con atributos: `nombre`, `apellido`, `email`
 
@@ -117,15 +122,38 @@ const sequelize = require("./database");
 class Cliente extends Model {}
 
 Cliente.init(
-	{
-		nombre: { type: DataTypes.STRING },
-		apellido: { type: DataTypes.STRING },
-		email: { type: DataTypes.STRING },
-	},
-	{
-		sequelize,
-		modelName: "cliente",
-	}
+    {
+        nombre: { type: DataTypes.STRING },
+        apellido: { type: DataTypes.STRING },
+        email: { type: DataTypes.STRING },
+    },
+    {
+        sequelize,
+        modelName: "cliente",
+    }
+);
+
+module.exports = Cliente;
+```
+
+Alternativamente podemos usar la otra sintaxis para definir el modelo:
+
+```javascript
+const { Model, DataTypes } = require("sequelize");
+const sequelize = require("./database");
+
+const Cliente = sequelize.define(
+    "Cliente",
+    {
+        nombre: { type: DataTypes.STRING },
+        apellido: { type: DataTypes.STRING },
+        email: { type: DataTypes.STRING },
+    },
+    {
+        sequelize,
+        modelName: "cliente",
+        timestamps: false,
+    }
 );
 
 module.exports = Cliente;
@@ -145,11 +173,11 @@ const app = express();
 app.use(express.json());
 
 app.post("/clientes", (req, res) => {
-	Cliente.create(req.body).then(() => res.send("Cliente creado."));
+    Cliente.create(req.body).then(() => res.send("Cliente creado."));
 });
 
 app.listen(3000, () => {
-	console.log("Aplicación corriendo en http://localhost:3000");
+    console.log("Aplicación corriendo en http://localhost:3000");
 });
 ```
 
@@ -159,7 +187,7 @@ La línea:
 app.use(express.json());
 ```
 
-permite que el tratar el contenido del body cuando viene json
+agrega el middleware necesario para tratar el contenido del body cuando viene json
 
 Ya podemos probar nuestra API con cUrl, Postman u otro cliente
 
@@ -184,16 +212,16 @@ const sequelize = require("./database");
 class Cliente extends Model {}
 
 Cliente.init(
-	{
-		nombre: { type: DataTypes.STRING },
-		apellido: { type: DataTypes.STRING },
-		email: { type: DataTypes.STRING },
-	},
-	{
-		sequelize,
-		modelName: "cliente",
-		timestamps: false,
-	}
+    {
+        nombre: { type: DataTypes.STRING },
+        apellido: { type: DataTypes.STRING },
+        email: { type: DataTypes.STRING },
+    },
+    {
+        sequelize,
+        modelName: "cliente",
+        timestamps: false,
+    }
 );
 
 module.exports = Cliente;
@@ -213,10 +241,220 @@ const app = express();
 app.use(express.json());
 
 app.post("/clientes", (req, res) => {
-	Cliente.create(req.body).then(() => res.send("Cliente creado."));
+    Cliente.create(req.body).then(() => res.send("Cliente creado."));
 });
 
 app.listen(3000, () => {
-	console.log("Aplicación corriendo en http://localhost:3000");
+    console.log("Aplicación corriendo en http://localhost:3000");
 });
+```
+
+Usemos `async` `await`
+
+```javascript
+const express = require("express");
+const sequelize = require("./database");
+const Cliente = require("./Cliente");
+
+// sequelize.sync({ force: true }).then(() => console.log("Base de Datos: Lista"));
+sequelize.sync().then(() => console.log("Base de Datos: Lista"));
+
+const app = express();
+
+app.use(express.json());
+
+app.post("/clientes", async (req, res) => {
+    await Cliente.create(req.body);
+    res.send("Cliente creado.");
+});
+
+app.listen(3000, () => {
+    console.log("Aplicación corriendo en http://localhost:3000");
+});
+```
+
+## Implementamos el `get`
+
+```javascript
+const express = require("express");
+const sequelize = require("./database");
+const Cliente = require("./Cliente");
+
+// sequelize.sync({ force: true }).then(() => console.log("Base de Datos: Lista"));
+sequelize.sync().then(() => console.log("Base de Datos: Lista"));
+
+const app = express();
+
+app.use(express.json());
+
+app.get("/clientes", async (req, res) => {
+    const clientes = await Cliente.findAll();
+    res.send(clientes);
+});
+
+app.post("/clientes", async (req, res) => {
+    await Cliente.create(req.body);
+    res.send("Cliente creado.");
+});
+
+app.listen(3000, () => {
+    console.log("Aplicación corriendo en http://localhost:3000");
+});
+```
+
+## Testear con cUrl
+
+```bash
+curl -X GET http://localhost:3000/clientes  -H 'Content-Type: application/json'
+```
+
+## Para recuperar usando un parámetro
+
+En este caso usamos el id para recuperar un cliente
+
+```javascript
+const express = require("express");
+const sequelize = require("./database");
+const Cliente = require("./Cliente");
+
+// sequelize.sync({ force: true }).then(() => console.log("Base de Datos: Lista"));
+sequelize.sync().then(() => console.log("Base de Datos: Lista"));
+
+const app = express();
+
+app.use(express.json());
+
+app.get("/clientes", async (req, res) => {
+    const clientes = await Cliente.findAll();
+    res.send(clientes);
+});
+
+app.get("/clientes/:id", async (req, res) => {
+    const requestedId = req.params.id;
+    const cliente = await Cliente.findOne({ where: { id: requestedId } });
+    res.send(cliente);
+});
+
+app.post("/clientes", async (req, res) => {
+    await Cliente.create(req.body);
+    res.send("Cliente creado.");
+});
+
+app.listen(3000, () => {
+    console.log("Aplicación corriendo en http://localhost:3000");
+});
+```
+
+## Testear con cUrl
+
+```bash
+curl -X GET http://localhost:3000/clientes/3  -H 'Content-Type: application/json'
+```
+
+## Actualizar un cliente
+
+```javascript
+const express = require("express");
+const sequelize = require("./database");
+const Cliente = require("./Cliente");
+
+// sequelize.sync({ force: true }).then(() => console.log("Base de Datos: Lista"));
+sequelize.sync().then(() => console.log("Base de Datos: Lista"));
+
+const app = express();
+
+app.use(express.json());
+
+app.get("/clientes", async (req, res) => {
+    const clientes = await Cliente.findAll();
+    res.send(clientes);
+});
+
+app.get("/clientes/:id", async (req, res) => {
+    const requestedId = req.params.id;
+    const cliente = await Cliente.findOne({ where: { id: requestedId } });
+    res.send(cliente);
+});
+
+app.post("/clientes", async (req, res) => {
+    await Cliente.create(req.body);
+    res.send("Cliente creado.");
+});
+
+app.put("/clientes/:id", async (req, res) => {
+    const requestedId = req.params.id;
+    const cliente = await Cliente.findOne({ where: { id: requestedId } });
+    cliente.nombre = req.body.nombre;
+    cliente.apellido = req.body.apellido;
+    await cliente.save();
+    res.send("Cliente actualizado");
+});
+
+app.listen(3000, () => {
+    console.log("Aplicación corriendo en http://localhost:3000");
+});
+```
+
+## Testear con cUrl
+
+```bash
+curl -X PUT http://localhost:3000/clientes/3  -H 'Content-Type: application/json'  -d '{"nombre":"Luis","apellido":"Tangalangoose","email":"a@mail.com"}'
+curl -X GET http://localhost:3000/clientes/3  -H 'Content-Type: application/json'
+```
+
+## Eliminar un cliente
+
+```javascript
+const express = require("express");
+const sequelize = require("./database");
+const Cliente = require("./Cliente");
+
+// sequelize.sync({ force: true }).then(() => console.log("Base de Datos: Lista"));
+sequelize.sync().then(() => console.log("Base de Datos: Lista"));
+
+const app = express();
+
+app.use(express.json());
+
+app.get("/clientes", async (req, res) => {
+    const clientes = await Cliente.findAll();
+    res.send(clientes);
+});
+
+app.get("/clientes/:id", async (req, res) => {
+    const requestedId = req.params.id;
+    const cliente = await Cliente.findOne({ where: { id: requestedId } });
+    res.send(cliente);
+});
+
+app.post("/clientes", async (req, res) => {
+    await Cliente.create(req.body);
+    res.send("Cliente creado.");
+});
+
+app.put("/clientes/:id", async (req, res) => {
+    const requestedId = req.params.id;
+    const cliente = await Cliente.findOne({ where: { id: requestedId } });
+    cliente.nombre = req.body.nombre;
+    cliente.apellido = req.body.apellido;
+    await cliente.save();
+    res.send("Cliente actualizado");
+});
+
+app.delete("/clientes/:id", async (req, res) => {
+    const requestedId = req.params.id;
+    await Cliente.destroy({ where: { id: requestedId } });
+    res.send("Cliente eliminado");
+});
+
+app.listen(3000, () => {
+    console.log("Aplicación corriendo en http://localhost:3000");
+});
+```
+
+## Testear con cUrl
+
+```bash
+curl -X DELETE http://localhost:3000/clientes/3  -H 'Content-Type: application/json'
+curl -X GET http://localhost:3000/clientes  -H 'Content-Type: application/json'
 ```
