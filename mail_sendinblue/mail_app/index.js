@@ -1,34 +1,3 @@
-# Enviar mail usando sendinblue
-
-## Crear cuenta gratuita en sendinblue
-
-Crear una cuenta en [sendinblue](https://es.sendinblue.com/) siguiendo los pasos
-
-## Crear e inicializar el proyecto
-
-```bash
-mkdir mail_app
-cd mail_app
-npm init -y
-```
-
-## Instalar los paquetes necesariosn en el proyecto
-
-```bash
-npm i sib-api-v3-sdk dotenv
-```
-
-## Inicializamos la aplicación
-
-Agregamos el archivo `index.js`
-
-## Crear la función que envía mails
-
-Crear la función que envía los mails usando la api key provista por sendinblue
-
-En el archivo `index.js`
-
-```javascript
 const Sib = require("sib-api-v3-sdk");
 require("dotenv").config();
 
@@ -63,4 +32,3 @@ tranEmailApi
     })
     .then(console.log)
     .catch(console.log);
-```
