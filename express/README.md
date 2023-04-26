@@ -69,21 +69,6 @@ Y visualizar o modificar propiedades de la respuesta mediante `res`
 
 ### 2.2. Módulo URL
 
-### 2.1. Anatomía de una URL
-
-`https://www.freecodecamp.org/espanol/`
-`https://www.ejemplo.com/usuarios/14`
-`https://www.google.com/search?q=cursos+de+node`
-
-* `www`: subdominio
-* `freecodecamp`: dominio
-* `org`: TLD Top Level Domain - Dominio de nivel superior
-* `/espanol/`: path - archivo o directorio en el servidor
-* `/usuarios/14`: parámetro de ruta
-* `?q=cursos+de+node&page=1`: querystring - parámetro query
-
-### 2.2. Módulo URL
-
 Mediante las propiedades del módulo url podemos obtener los distintos elementos de una url.
 
 ```javascript
@@ -175,6 +160,7 @@ server.listen(port, ()=>{
   console.log(`Server escuchando en http://localhost:${port}`);
 })
 ```
+Se pueden eliminar los `res.statusCode = 200;` ya que es el status por defecto.
 
 Podemos realizar las peticiones con curl:
 
