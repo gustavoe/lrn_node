@@ -7,6 +7,7 @@
 * [2. URLs](#2-urls)
     * [2.1. Anatomía de una URL](#21-anatomía-de-una-url)
     * [2.2. Módulo URL](#22-módulo-url)
+* [3. Routing en Node.js](#3-routing-en-nodejs)
 
 <!-- vim-markdown-toc -->
 
@@ -68,7 +69,40 @@ Y visualizar o modificar propiedades de la respuesta mediante `res`
 
 ### 2.2. Módulo URL
 
+### 2.1. Anatomía de una URL
+
+`https://www.freecodecamp.org/espanol/`
+`https://www.ejemplo.com/usuarios/14`
+`https://www.google.com/search?q=cursos+de+node`
+
+* `www`: subdominio
+* `freecodecamp`: dominio
+* `org`: TLD Top Level Domain - Dominio de nivel superior
+* `/espanol/`: path - archivo o directorio en el servidor
+* `/usuarios/14`: parámetro de ruta
+* `?q=cursos+de+node&page=1`: querystring - parámetro query
+
+### 2.2. Módulo URL
+
 Mediante las propiedades del módulo url podemos obtener los distintos elementos de una url.
+
+```javascript
+const miURL = new URL('https://www.ejemplo.org/cursos/programacion?ordenar=vistas&nivel=1');
+
+console.log(miURL.hostname);
+console.log(miURL.pathname);
+
+console.log(miURL.searchParams);
+console.log(miURL.searchParams.get('ordenar'));
+console.log(miURL.searchParams.get('nivel'));
+```
+
+## 3. Routing en Node.js
+
+En general una ruta está definida por los siguientes elementos: 
+* Método
+* Path
+* Como manejarlo
 
 ```javascript
 const http = require('http');
@@ -128,6 +162,7 @@ function manejarSolicitudPOST(req, res){
       console.log(cuerpo);
       console.log(cuerpo.titulo);
 
+
       return res.end("El servidor recibió una solicitud POST para /cursos/programacion")
     })
     //return res.end("El servidor recibió una solicitud POST para /cursos/programacion")
@@ -140,6 +175,7 @@ server.listen(port, ()=>{
   console.log(`Server escuchando en http://localhost:${port}`);
 })
 ```
+
 Podemos realizar las peticiones con curl:
 
 ```bash
@@ -147,11 +183,7 @@ curl -X GET http://localhost:3000/
 curl -X GET http://localhost:3000/cursos 
 curl -X GET http://localhost:3000/cursos/programacion 
 curl -X POST http://localhost:3000/cursos/programacion -H Content-Type: application/json -d '{titulo: 123456, quantity: 100}'
-
 ```
-
-
-
 
 
 ```javascript
