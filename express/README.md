@@ -18,6 +18,11 @@
     * [5.6. Routers en distintos archivos](#56-routers-en-distintos-archivos)
 * [6. Manejar variables de entorno](#6-manejar-variables-de-entorno)
 * [7. Crear servidor https](#7-crear-servidor-https)
+    * [7.1. POST](#71-post)
+    * [7.2. PUT](#72-put)
+    * [7.3. PATCH](#73-patch)
+    * [7.4. DELETE](#74-delete)
+    * [7.5. Algunas cosas más](#75-algunas-cosas-más)
 
 <!-- vim-markdown-toc -->
 
@@ -617,4 +622,155 @@ app.get('/', function(req, res){
 	console.log('Se recibio una petición get a través de https');
 });
 
+```
+
+### 7.1. POST
+
+Antes que nada: se debe agregar 
+
+```javascript 
+// parse requests of content-type - application/json
+app.use(express.json());
+
+// parse requests of content-type - application/x-www-form-urlencoded
+app.use(express.urlencoded({ extended: true }));
+```
+Las funciones del **middleware** se ejecutan: 
+- **Después** de recibir una petición
+- **Antes** de enviar una respuesta
+
+Tienen acceso al objeto de la petición, al objeto de la respuesta y a `next()` una función que se llama para ejecutar el próximo middleware.
+
+La ruta quedaría así: 
+
+```javascript
+routerProgramacion.post("/", (req, res)=>{
+  let cursoNuevo = req.body;
+  programacion.push(cursoNuevo);
+  res.setHeader("Content-Type", "application/json");
+  res.send(JSON.stringify(programacion));
+})
+```
+y la petición podría ser:
+
+``` 
+POST http://localhost:3000/api/cursos/programacion
+Content-Type: application/json
+
+{
+  "id": 10,
+  "titulo": "Aprende Node.js",
+  "lenguaje": "javascript",
+  "vistas": 3438439,
+  "nivel": "basico"
+}
+```
+
+### 7.2. PUT
+
+En un put tenemos que enviar la entidad entera (no solamente las propiedades que serán actualizadas)
+
+
+La ruta PUT quedaría así: 
+
+```javascript
+routerProgramacion.put("/:id", (req, res)=>{
+  const cursoActualizado = req.body;
+  const id = parseInt(req.params.id);
+
+  const indice = programacion.findIndex(curso => curso.id === id);
+
+  if (indice >= 0){
+    programacion[indice] = cursoActualizado; 
+  }
+  res.setHeader("Content-Type", "application/json");
+  res.send(JSON.stringify(programacion));
+})
+```
+y la petición podría ser:
+
+``` 
+PUT http://localhost:3000/api/cursos/programacion/10
+Content-Type: application/json
+
+{
+  "id": 2,
+  "titulo": "Aprende Node.js modificado",
+  "lenguaje": "javascript",
+  "vistas": 111111,
+  "nivel": "basico"
+}
+```
+
+### 7.3. PATCH
+
+El **patch** está pensado para actualizar solamente alguno(s) valor(es) 
+
+```javascript
+routerProgramacion.patch("/:id", (req, res)=>{
+  const cursoActualizado = req.body;
+  const id = parseInt(req.params.id);
+
+  const indice = programacion.findIndex(curso => curso.id === id);
+
+  if (indice >= 0){
+    programacion[indice].titulo = cursoActualizado.titulo; 
+  }
+  res.setHeader("Content-Type", "application/json");
+  res.send(JSON.stringify(programacion));
+})
+```
+
+
+```
+PATCH http://localhost:3000/api/cursos/programacion/2
+Content-Type: application/json
+
+{
+  "titulo": "Aprende Node.js patcheado"
+}
+```
+
+
+### 7.4. DELETE
+
+Finalmente **DELETE**, cuya implementación es: 
+
+```javascript
+routerProgramacion.delete("/:id", (req, res)=>{
+  const id = parseInt(req.params.id);
+
+  const indice = programacion.findIndex(curso => curso.id === id);
+
+  if (indice >= 0){
+    programacion.splice(indice, 1);
+  }
+  res.setHeader("Content-Type", "application/json");
+  res.send(JSON.stringify(programacion));
+})
+```
+
+
+```
+DELETE http://localhost:3000/api/cursos/programacion/2
+```
+
+### 7.5. Algunas cosas más
+
+Es importante usar el método `status()` para comunicar más acerca de que sucedió en el proceso.
+
+```javascript
+res.status(404).send('No se encontró el curso');
+```
+También el método `end()` es útil para terminar una respuesta que no devuelve resultados.
+
+```javascript
+res.status(201).end();
+```
+
+El método `json()` envía la respuesta como JSON
+
+
+```javascript
+res.json(cursos);
 ```
